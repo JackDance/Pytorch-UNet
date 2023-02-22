@@ -5,6 +5,11 @@ from .unet_parts import *
 
 class UNet(nn.Module):
     def __init__(self, n_channels, n_classes, bilinear=False):
+        """
+        :params: n_channels 输入单张图片的通道数
+        :params: n_classes 需要分类的类别数
+        :params: bilinear 是否采用双线性插值
+        """
         super(UNet, self).__init__()
         self.n_channels = n_channels
         self.n_classes = n_classes

@@ -12,6 +12,7 @@ class DoubleConv(nn.Module):
         super().__init__()
         if not mid_channels:
             mid_channels = out_channels
+        # 原论文中padding=0，会使得每次卷积后的特征图长宽各少2，这里使用padding=1，可避免该问题
         self.double_conv = nn.Sequential(
             nn.Conv2d(in_channels, mid_channels, kernel_size=3, padding=1, bias=False),
             nn.BatchNorm2d(mid_channels),
@@ -64,14 +65,15 @@ class Up(nn.Module):
         # if you have padding issues, see
         # https://github.com/HaiyongJiang/U-Net-Pytorch-Unstructured-Buggy/commit/0e854509c2cea854e247a9c615f175f76fbb2e3a
         # https://github.com/xiaopeng-liao/Pytorch-UNet/commit/8ebac70e633bac59fc22bb5195e513d5832fb3bd
-        x = torch.cat([x2, x1], dim=1)
+        x = torch.cat([x2, x1], dim=1) # 按照维度1（列）拼接x2和x1，除拼接维度dim数值可不同外其余维度数值需相同，方能对齐
         return self.conv(x)
 
 
 class OutConv(nn.Module):
+    """Adjust the numer of channels to the number of object classes"""
     def __init__(self, in_channels, out_channels):
         super(OutConv, self).__init__()
-        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=1)
+        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=1) # k=1，用来改变通道数
 
     def forward(self, x):
         return self.conv(x)
